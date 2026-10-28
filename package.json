@@ -1,0 +1,13 @@
+{
+  "name": "notifyai-mern",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "node scripts/dev.js",
+    "dev:server": "npm --prefix server run dev",
+    "dev:client": "npm --prefix client run dev",
+    "build": "npm --prefix client run build",
+    "start:server": "npm --prefix server run start"
+  }
+}
