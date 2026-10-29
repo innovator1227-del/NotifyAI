@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Bell, Eye, EyeOff, LoaderCircle } from "lucide-react";
 import api from "../services/api.js";
 
-export default function AuthPage({ onAuthenticated }) {
+const AuthPage = ({ onAuthenticated }) => {
   const [mode, setMode] = useState("login");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -129,11 +129,15 @@ export default function AuthPage({ onAuthenticated }) {
               </span>
               <span className="relative block">
                 <input
-                  autoComplete={isRegistering ? "new-password" : "current-password"}
+                  autoComplete={
+                    isRegistering ? "new-password" : "current-password"
+                  }
                   className="w-full rounded-lg border border-slate-300 px-3.5 py-3 pr-12 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10"
                   minLength={isRegistering ? 8 : undefined}
                   onChange={(event) => setPassword(event.target.value)}
-                  placeholder={isRegistering ? "At least 8 characters" : "Your password"}
+                  placeholder={
+                    isRegistering ? "At least 8 characters" : "Your password"
+                  }
                   required
                   type={showPassword ? "text" : "password"}
                   value={password}
@@ -188,4 +192,6 @@ export default function AuthPage({ onAuthenticated }) {
       </section>
     </main>
   );
-}
+};
+
+export default AuthPage;

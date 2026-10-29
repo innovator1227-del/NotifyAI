@@ -3,8 +3,7 @@ import { AlertCircle, LoaderCircle } from "lucide-react";
 import AuthPage from "./pages/AuthPage.jsx";
 import Dashboard from "./pages/Dashboard.jsx";
 import api from "./services/api.js";
-
-export default function App() {
+const App = () => {
   const [user, setUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(
     Boolean(localStorage.getItem("notifyai_token")),
@@ -108,10 +107,8 @@ export default function App() {
   }
 
   return (
-    <Dashboard
-      onLogout={clearSession}
-      onUserUpdated={setUser}
-      user={user}
-    />
+    <Dashboard onLogout={clearSession} onUserUpdated={setUser} user={user} />
   );
-}
+};
+
+export default App;

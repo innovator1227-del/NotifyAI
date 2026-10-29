@@ -8,15 +8,23 @@ const platformColors = {
   telegram: "bg-sky-50 text-sky-700",
 };
 
-export default function NotificationItem({ item, onUpdate, onSelect, onOpen, selected = false }) {
+const NotificationItem = ({
+  item,
+  onUpdate,
+  onSelect,
+  onOpen,
+  selected = false,
+}) => {
   const platformClass =
-    platformColors[item.platform?.toLowerCase()] || "bg-indigo-50 text-indigo-700";
-  const priorityClass = {
-    critical: "bg-rose-50 text-rose-700",
-    high: "bg-amber-50 text-amber-700",
-    medium: "bg-blue-50 text-blue-700",
-    low: "bg-slate-100 text-slate-600",
-  }[item.priority] || "bg-blue-50 text-blue-700";
+    platformColors[item.platform?.toLowerCase()] ||
+    "bg-indigo-50 text-indigo-700";
+  const priorityClass =
+    {
+      critical: "bg-rose-50 text-rose-700",
+      high: "bg-amber-50 text-amber-700",
+      medium: "bg-blue-50 text-blue-700",
+      low: "bg-slate-100 text-slate-600",
+    }[item.priority] || "bg-blue-50 text-blue-700";
   const date = new Date(item.receivedAt || item.createdAt);
 
   return (
@@ -64,7 +72,9 @@ export default function NotificationItem({ item, onUpdate, onSelect, onOpen, sel
           <span className="rounded bg-slate-100 px-2 py-1 text-[10px] text-slate-600">
             {item.category || "Other"}
           </span>
-          <span className={`rounded px-2 py-1 text-[10px] font-bold ${priorityClass}`}>
+          <span
+            className={`rounded px-2 py-1 text-[10px] font-bold ${priorityClass}`}
+          >
             {item.priority || "medium"} priority
           </span>
         </div>
@@ -73,9 +83,7 @@ export default function NotificationItem({ item, onUpdate, onSelect, onOpen, sel
         <button
           aria-label={item.readStatus ? "Mark unread" : "Mark read"}
           className="grid h-8 w-8 place-items-center rounded-md text-slate-400 hover:bg-indigo-50 hover:text-indigo-600"
-          onClick={() =>
-            onUpdate(item._id, { readStatus: !item.readStatus })
-          }
+          onClick={() => onUpdate(item._id, { readStatus: !item.readStatus })}
           title={item.readStatus ? "Mark unread" : "Mark read"}
         >
           <Check size={16} />
@@ -85,17 +93,21 @@ export default function NotificationItem({ item, onUpdate, onSelect, onOpen, sel
           className={`grid h-8 w-8 place-items-center rounded-md hover:bg-amber-50 hover:text-amber-600 ${
             item.isImportant ? "text-amber-500" : "text-slate-400"
           }`}
-          onClick={() =>
-            onUpdate(item._id, { isImportant: !item.isImportant })
-          }
+          onClick={() => onUpdate(item._id, { isImportant: !item.isImportant })}
           title={item.isImportant ? "Remove importance" : "Mark important"}
         >
           <Star size={16} />
         </button>
         <button
-          aria-label={item.archivedStatus ? "Restore notification" : "Archive notification"}
+          aria-label={
+            item.archivedStatus
+              ? "Restore notification"
+              : "Archive notification"
+          }
           className="grid h-8 w-8 place-items-center rounded-md text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-          onClick={() => onUpdate(item._id, { archivedStatus: !item.archivedStatus })}
+          onClick={() =>
+            onUpdate(item._id, { archivedStatus: !item.archivedStatus })
+          }
           title={item.archivedStatus ? "Restore" : "Archive"}
         >
           <Archive size={16} />
@@ -103,4 +115,6 @@ export default function NotificationItem({ item, onUpdate, onSelect, onOpen, sel
       </div>
     </article>
   );
-}
+};
+
+export default NotificationItem;

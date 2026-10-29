@@ -4,7 +4,7 @@ import api from "../services/api.js";
 
 const categoryOptions = ["Work", "Personal", "Security", "Promotion", "Other"];
 
-export default function SettingsPage({ user, onUserUpdated, onNotice }) {
+const SettingsPage = ({ user, onUserUpdated, onNotice }) => {
   const [name, setName] = useState(user.name);
   const [preferences, setPreferences] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -330,4 +330,6 @@ export default function SettingsPage({ user, onUserUpdated, onNotice }) {
       </section>
     </div>
   );
-}
+};
+
+export default SettingsPage;

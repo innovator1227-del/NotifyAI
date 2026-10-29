@@ -2,7 +2,7 @@ import { useState } from "react";
 import { LoaderCircle, X } from "lucide-react";
 import api from "../services/api.js";
 
-export default function QuickAdd({ onClose, onCreated, onNotice }) {
+const QuickAdd = ({ onClose, onCreated, onNotice }) => {
   const [form, setForm] = useState({
     platform: "Other",
     senderName: "",
@@ -139,4 +139,6 @@ export default function QuickAdd({ onClose, onCreated, onNotice }) {
       </section>
     </div>
   );
-}
+};
+
+export default QuickAdd;

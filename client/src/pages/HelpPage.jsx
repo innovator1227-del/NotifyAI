@@ -23,7 +23,7 @@ const topics = [
   },
 ];
 
-export default function HelpPage() {
+const HelpPage = () => {
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm sm:p-7">
       <div className="flex items-center gap-3">
@@ -31,8 +31,12 @@ export default function HelpPage() {
           <BookOpenCheck size={19} />
         </span>
         <div>
-          <h2 className="font-display text-sm font-bold text-slate-900">NotifyAI help</h2>
-          <p className="mt-1 text-xs text-slate-500">Quick answers about your workspace.</p>
+          <h2 className="font-display text-sm font-bold text-slate-900">
+            NotifyAI help
+          </h2>
+          <p className="mt-1 text-xs text-slate-500">
+            Quick answers about your workspace.
+          </p>
         </div>
       </div>
       <div className="mt-5 divide-y divide-slate-100">
@@ -48,4 +52,5 @@ export default function HelpPage() {
       </div>
     </section>
   );
-}
+};
+export default HelpPage;

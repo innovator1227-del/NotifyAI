@@ -47,7 +47,7 @@ const pages = [
   { key: "help", label: "Help", icon: CircleHelp },
 ];
 
-export default function Dashboard({ user, onLogout, onUserUpdated }) {
+const Dashboard = ({ user, onLogout, onUserUpdated }) => {
   const [items, setItems] = useState([]);
   const [query, setQuery] = useState("");
   const [status, setStatus] = useState("all");
@@ -653,4 +653,6 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
       )}
     </div>
   );
-}
+};
+
+export default Dashboard;

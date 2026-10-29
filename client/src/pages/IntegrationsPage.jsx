@@ -1,5 +1,10 @@
 import { useEffect, useState } from "react";
-import { CircleCheck, CircleDashed, LoaderCircle, RefreshCw } from "lucide-react";
+import {
+  CircleCheck,
+  CircleDashed,
+  LoaderCircle,
+  RefreshCw,
+} from "lucide-react";
 import api from "../services/api.js";
 
 const providerDescriptions = {
@@ -12,7 +17,7 @@ const providerDescriptions = {
   Demo: "Sample notifications for exploring the inbox",
 };
 
-export default function IntegrationsPage({ onNotice, onSynced }) {
+const IntegrationsPage = ({ onNotice, onSynced }) => {
   const [integrations, setIntegrations] = useState([]);
   const [providers, setProviders] = useState(Object.keys(providerDescriptions));
   const [busyProvider, setBusyProvider] = useState("");
@@ -39,7 +44,9 @@ export default function IntegrationsPage({ onNotice, onSynced }) {
         data.integration,
         ...current.filter((item) => item.provider !== provider),
       ]);
-      onNotice(`Imported ${data.imported} new sample notification(s) from ${provider}.`);
+      onNotice(
+        `Imported ${data.imported} new sample notification(s) from ${provider}.`,
+      );
       onSynced();
     } catch (error) {
       onNotice(error.response?.data?.message || "Could not sync sample data.");
@@ -51,18 +58,29 @@ export default function IntegrationsPage({ onNotice, onSynced }) {
   return (
     <div className="space-y-5">
       <div className="rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-xs leading-5 text-amber-900">
-        These are demo data sources for development and testing. Real social-platform connections require each provider&apos;s approved OAuth access and credentials; no live account is connected here.
+        These are demo data sources for development and testing. Real
+        social-platform connections require each provider&apos;s approved OAuth
+        access and credentials; no live account is connected here.
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
         {providers.map((provider) => {
-          const integration = integrations.find((item) => item.provider === provider);
+          const integration = integrations.find(
+            (item) => item.provider === provider,
+          );
           const syncing = busyProvider === provider;
           return (
-            <article className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm" key={provider}>
+            <article
+              className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm"
+              key={provider}
+            >
               <div className="flex items-start justify-between gap-3">
                 <div>
-                  <h2 className="font-display text-sm font-bold text-slate-900">{provider}</h2>
-                  <p className="mt-1 text-xs leading-5 text-slate-500">{providerDescriptions[provider]}</p>
+                  <h2 className="font-display text-sm font-bold text-slate-900">
+                    {provider}
+                  </h2>
+                  <p className="mt-1 text-xs leading-5 text-slate-500">
+                    {providerDescriptions[provider]}
+                  </p>
                 </div>
                 {integration ? (
                   <CircleCheck className="text-emerald-500" size={18} />
@@ -80,7 +98,11 @@ export default function IntegrationsPage({ onNotice, onSynced }) {
                 disabled={Boolean(busyProvider)}
                 onClick={() => void syncProvider(provider)}
               >
-                {syncing ? <LoaderCircle className="animate-spin" size={14} /> : <RefreshCw size={14} />}
+                {syncing ? (
+                  <LoaderCircle className="animate-spin" size={14} />
+                ) : (
+                  <RefreshCw size={14} />
+                )}
                 {syncing ? "Syncing..." : "Load demo notifications"}
               </button>
             </article>
@@ -89,4 +111,5 @@ export default function IntegrationsPage({ onNotice, onSynced }) {
       </div>
     </div>
   );
-}
+};
+export default IntegrationsPage;

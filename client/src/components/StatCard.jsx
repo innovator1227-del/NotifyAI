@@ -1,4 +1,4 @@
-export default function StatCard({ label, value, note, icon: Icon }) {
+const StatCard = ({ label, value, note, icon: Icon }) => {
   return (
     <article className="rounded-xl border border-slate-200 bg-white p-4 shadow-sm">
       <div className="flex items-center justify-between gap-3 text-xs font-semibold text-slate-500">
@@ -13,4 +13,6 @@ export default function StatCard({ label, value, note, icon: Icon }) {
       <p className="mt-1 text-[11px] text-slate-400">{note}</p>
     </article>
   );
-}
+};
+
+export default StatCard;

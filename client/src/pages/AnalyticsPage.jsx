@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { BarChart3, CircleCheck, CircleHelp, Inbox } from "lucide-react";
 import StatCard from "../components/StatCard.jsx";
 
-function Bars({ title, rows }) {
+const Bars = ({ title, rows }) => {
   const maximum = Math.max(1, ...rows.map(([, count]) => count));
   return (
     <section className="rounded-xl border border-slate-200 bg-white p-5 shadow-sm">
@@ -11,7 +11,9 @@ function Bars({ title, rows }) {
         <div className="mt-4 space-y-3">
           {rows.map(([label, count]) => (
             <div className="flex items-center gap-3" key={label}>
-              <span className="w-24 truncate text-xs text-slate-500">{label}</span>
+              <span className="w-24 truncate text-xs text-slate-500">
+                {label}
+              </span>
               <div className="h-2 flex-1 overflow-hidden rounded-full bg-slate-100">
                 <div
                   className="h-full rounded-full bg-indigo-500"
@@ -29,9 +31,9 @@ function Bars({ title, rows }) {
       )}
     </section>
   );
-}
+};
 
-export default function AnalyticsPage({ items }) {
+const AnalyticsPage = ({ items }) => {
   const analytics = useMemo(() => {
     const categories = new Map();
     const platforms = new Map();
@@ -42,9 +44,18 @@ export default function AnalyticsPage({ items }) {
     let unread = 0;
 
     for (const item of items) {
-      categories.set(item.category || "Other", (categories.get(item.category || "Other") || 0) + 1);
-      platforms.set(item.platform || "Other", (platforms.get(item.platform || "Other") || 0) + 1);
-      priorities.set(item.priority || "medium", (priorities.get(item.priority || "medium") || 0) + 1);
+      categories.set(
+        item.category || "Other",
+        (categories.get(item.category || "Other") || 0) + 1,
+      );
+      platforms.set(
+        item.platform || "Other",
+        (platforms.get(item.platform || "Other") || 0) + 1,
+      );
+      priorities.set(
+        item.priority || "medium",
+        (priorities.get(item.priority || "medium") || 0) + 1,
+      );
       senders.set(item.senderName, (senders.get(item.senderName) || 0) + 1);
       if (item.aiSource) analyzed += 1;
       if (!item.readStatus) unread += 1;
@@ -71,16 +82,39 @@ export default function AnalyticsPage({ items }) {
     const date = new Date();
     date.setDate(date.getDate() - (13 - index));
     const label = date.toLocaleDateString();
-    return [date.toLocaleDateString("en", { month: "short", day: "numeric" }), analytics.days.find(([day]) => day === label)?.[1] || 0];
+    return [
+      date.toLocaleDateString("en", { month: "short", day: "numeric" }),
+      analytics.days.find(([day]) => day === label)?.[1] || 0,
+    ];
   });
 
   return (
     <div className="space-y-5">
       <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard label="Total analyzed" value={items.length} note="Notifications in your workspace" icon={Inbox} />
-        <StatCard label="Unread" value={analytics.unread} note="Waiting for your attention" icon={CircleHelp} />
-        <StatCard label="AI analyzed" value={analytics.analyzed} note="Processed by AI or local rules" icon={CircleCheck} />
-        <StatCard label="Platforms" value={analytics.platforms.length} note="Sources represented in your inbox" icon={BarChart3} />
+        <StatCard
+          label="Total analyzed"
+          value={items.length}
+          note="Notifications in your workspace"
+          icon={Inbox}
+        />
+        <StatCard
+          label="Unread"
+          value={analytics.unread}
+          note="Waiting for your attention"
+          icon={CircleHelp}
+        />
+        <StatCard
+          label="AI analyzed"
+          value={analytics.analyzed}
+          note="Processed by AI or local rules"
+          icon={CircleCheck}
+        />
+        <StatCard
+          label="Platforms"
+          value={analytics.platforms.length}
+          note="Sources represented in your inbox"
+          icon={BarChart3}
+        />
       </div>
       <div className="grid gap-4 lg:grid-cols-2">
         <Bars title="14-day notification volume" rows={sortedDays} />
@@ -91,4 +125,5 @@ export default function AnalyticsPage({ items }) {
       </div>
     </div>
   );
-}
+};
+export default AnalyticsPage;
