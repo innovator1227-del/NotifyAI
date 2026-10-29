@@ -68,7 +68,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
     try {
       const [inbox, archived] = await Promise.all([
         api.get("/notifications", { params: { status: "all", limit: 100 } }),
-        api.get("/notifications", { params: { status: "archived", limit: 100 } }),
+        api.get("/notifications", {
+          params: { status: "archived", limit: 100 },
+        }),
       ]);
       setItems([...(inbox.data.rows || []), ...(archived.data.rows || [])]);
       setNotice("");
@@ -87,7 +89,8 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
   }, [loadNotifications]);
 
   useEffect(() => {
-    api.get("/ai/status")
+    api
+      .get("/ai/status")
       .then(({ data }) => setAiConfigured(data.configured && data.enabled))
       .catch(() => setAiConfigured(false));
   }, []);
@@ -103,8 +106,8 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
             ? item.archivedStatus
             : !item.archivedStatus &&
               (status === "all" ||
-          (status === "unread" && !item.readStatus) ||
-          (status === "important" && item.isImportant));
+                (status === "unread" && !item.readStatus) ||
+                (status === "important" && item.isImportant));
         const matchesPage =
           activePage !== "priority" ||
           item.priority === "critical" ||
@@ -112,7 +115,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
           item.importanceScore >= 70;
         const matchesSmartSearch =
           smartResults === null || smartResults.includes(item._id);
-        return matchesQuery && matchesStatus && matchesPage && matchesSmartSearch;
+        return (
+          matchesQuery && matchesStatus && matchesPage && matchesSmartSearch
+        );
       }),
     [activePage, items, query, smartResults, status],
   );
@@ -132,17 +137,55 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
     try {
       const { data } = await api.patch(`/notifications/${id}`, changes);
       setItems((current) =>
-        current.map((item) =>
-          item._id === id ? data.notification : item,
-        ),
+        current.map((item) => (item._id === id ? data.notification : item)),
       );
       setDetailItem((current) =>
         current?._id === id ? data.notification : current,
       );
+      return true;
     } catch (error) {
       setNotice(
         error.response?.data?.message || "Could not update notification.",
       );
+      return false;
+    }
+  }
+
+  async function analyzeItem(id) {
+    try {
+      const { data } = await api.post(`/notifications/${id}/analyze`);
+      setItems((current) =>
+        current.map((item) => (item._id === id ? data.notification : item)),
+      );
+      setDetailItem((current) =>
+        current?._id === id ? data.notification : current,
+      );
+      setNotice(
+        data.notification.aiSource === "ai"
+          ? "Notification analyzed with AI."
+          : "Notification analyzed with local rules.",
+      );
+      return true;
+    } catch (error) {
+      setNotice(
+        error.response?.data?.message || "Could not analyze notification.",
+      );
+      return false;
+    }
+  }
+
+  async function deleteItem(id) {
+    try {
+      await api.delete(`/notifications/${id}`);
+      setItems((current) => current.filter((item) => item._id !== id));
+      setDetailItem(null);
+      setNotice("Notification deleted.");
+      return true;
+    } catch (error) {
+      setNotice(
+        error.response?.data?.message || "Could not delete notification.",
+      );
+      return false;
     }
   }
 
@@ -157,7 +200,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
     try {
       const { data } = await api.post("/ai/triage", { limit: 25 });
       const updates = new Map(data.updated.map((item) => [item._id, item]));
-      setItems((current) => current.map((item) => updates.get(item._id) || item));
+      setItems((current) =>
+        current.map((item) => updates.get(item._id) || item),
+      );
       setNotice(
         data.source === "ai"
           ? `AI analyzed ${data.count} notification(s).`
@@ -186,7 +231,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
           : "Keyword search applied. Configure OPENAI_API_KEY for natural-language search.",
       );
     } catch (error) {
-      setNotice(error.response?.data?.message || "Could not search notifications.");
+      setNotice(
+        error.response?.data?.message || "Could not search notifications.",
+      );
     } finally {
       setSmartBusy(false);
     }
@@ -200,7 +247,10 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
       await loadNotifications();
       setNotice("Selected notifications updated.");
     } catch (error) {
-      setNotice(error.response?.data?.message || "Could not update selected notifications.");
+      setNotice(
+        error.response?.data?.message ||
+          "Could not update selected notifications.",
+      );
     }
   }
 
@@ -257,7 +307,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
             {user.name.slice(0, 1).toUpperCase()}
           </div>
           <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold text-slate-800">{user.name}</p>
+            <p className="truncate text-xs font-bold text-slate-800">
+              {user.name}
+            </p>
             <p className="truncate text-[11px] text-slate-400">{user.email}</p>
           </div>
           <button
@@ -281,7 +333,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
             </strong>
           </div>
           <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span className={`h-2 w-2 rounded-full ${aiConfigured ? "bg-emerald-500" : "bg-amber-400"}`} />
+            <span
+              className={`h-2 w-2 rounded-full ${aiConfigured ? "bg-emerald-500" : "bg-amber-400"}`}
+            />
             {aiConfigured ? "AI connected" : "Local analysis"}
             <button
               className="ml-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
@@ -299,11 +353,16 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
           </div>
         </header>
 
-        <nav aria-label="Workspace pages" className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-4 py-2 md:hidden">
+        <nav
+          aria-label="Workspace pages"
+          className="flex gap-1 overflow-x-auto border-b border-slate-200 bg-white px-4 py-2 md:hidden"
+        >
           {pages.map(({ key, label }) => (
             <button
               className={`shrink-0 rounded-lg px-3 py-2 text-[11px] font-semibold ${
-                activePage === key ? "bg-indigo-50 text-indigo-700" : "text-slate-500"
+                activePage === key
+                  ? "bg-indigo-50 text-indigo-700"
+                  : "text-slate-500"
               }`}
               key={key}
               onClick={() => selectPage(key)}
@@ -317,7 +376,9 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
           <div className="mb-7 flex flex-wrap items-end justify-between gap-5">
             <div>
               <p className="mb-2 text-[10px] font-bold tracking-[0.17em] text-indigo-600">
-                {activePage === "overview" ? "YOUR ATTENTION, ORGANIZED" : "NOTIFYAI WORKSPACE"}
+                {activePage === "overview"
+                  ? "YOUR ATTENTION, ORGANIZED"
+                  : "NOTIFYAI WORKSPACE"}
               </p>
               <h1 className="font-display text-3xl font-extrabold tracking-tight text-slate-900">
                 {activePage === "overview"
@@ -336,7 +397,11 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
                 disabled={busy || loading || !activeItems.length}
                 onClick={classifyNotifications}
               >
-                {busy ? <LoaderCircle className="animate-spin" size={16} /> : <Sparkles size={16} />}
+                {busy ? (
+                  <LoaderCircle className="animate-spin" size={16} />
+                ) : (
+                  <Sparkles size={16} />
+                )}
                 {busy ? "Working..." : "Run AI triage"}
               </button>
             )}
@@ -361,38 +426,45 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
             </div>
           )}
 
-          {activePage === "overview" && <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            <StatCard
-              label="Total notifications"
-              value={activeItems.length}
-              note="Across your connected channels"
-              icon={Inbox}
-            />
-            <StatCard
-              label="Unread"
-              value={unread}
-              note="Waiting for your attention"
-              icon={Bell}
-            />
-            <StatCard
-              label="Important"
-              value={important}
-              note="Marked for follow-up"
-              icon={Star}
-            />
-            <StatCard
-              label="Critical priority"
-              value={critical}
-              note="Review these first"
-              icon={Activity}
-            />
-          </div>}
+          {activePage === "overview" && (
+            <div className="mb-6 grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
+              <StatCard
+                label="Total notifications"
+                value={activeItems.length}
+                note="Across your connected channels"
+                icon={Inbox}
+              />
+              <StatCard
+                label="Unread"
+                value={unread}
+                note="Waiting for your attention"
+                icon={Bell}
+              />
+              <StatCard
+                label="Important"
+                value={important}
+                note="Marked for follow-up"
+                icon={Star}
+              />
+              <StatCard
+                label="Critical priority"
+                value={critical}
+                note="Review these first"
+                icon={Activity}
+              />
+            </div>
+          )}
 
           {activePage === "analytics" && <AnalyticsPage items={activeItems} />}
           {activePage === "rules" && (
-            <RulesPage onNotice={showNotice} onRefresh={() => void loadNotifications()} />
+            <RulesPage
+              onNotice={showNotice}
+              onRefresh={() => void loadNotifications()}
+            />
           )}
-          {activePage === "summaries" && <SummariesPage onNotice={showNotice} />}
+          {activePage === "summaries" && (
+            <SummariesPage onNotice={showNotice} />
+          )}
           {activePage === "integrations" && (
             <IntegrationsPage
               onNotice={showNotice}
@@ -409,138 +481,173 @@ export default function Dashboard({ user, onLogout, onUserUpdated }) {
           {activePage === "help" && <HelpPage />}
 
           {["overview", "inbox", "priority"].includes(activePage) && (
-          <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-5">
-              <div>
-                <h2 className="font-display text-base font-bold text-slate-900">
-                  Notification inbox
-                </h2>
-                <p className="mt-1 text-xs text-slate-500">
-                  Prioritized to help you focus on what matters.
-                </p>
-              </div>
-              <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1.5 text-[10px] font-bold text-emerald-700">
-                <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
-                Live data
-              </span>
-            </div>
-
-            <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
-              <label className="flex h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-slate-200 px-3 text-slate-400 focus-within:border-indigo-400">
-                <Search size={16} />
-                <input
-                  className="w-full border-0 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
-                  onChange={(event) => {
-                    setQuery(event.target.value);
-                    setSmartResults(null);
-                    setSmartExplanation("");
-                  }}
-                  placeholder="Search notifications..."
-                  value={query}
-                />
-              </label>
-              <div className="flex flex-wrap items-center gap-1">
-                <button
-                  className="inline-flex items-center gap-1 rounded-md border border-indigo-100 bg-indigo-50 px-2.5 py-2 text-[11px] font-semibold text-indigo-700 disabled:opacity-50"
-                  disabled={smartBusy || !query.trim()}
-                  onClick={() => void runSmartSearch()}
-                >
-                  {smartBusy ? <LoaderCircle className="animate-spin" size={13} /> : <Sparkles size={13} />}
-                  Smart search
-                </button>
-                {filters.map((filter) => (
-                  <button
-                    className={`rounded-md border px-3 py-2 text-[11px] font-semibold transition ${
-                      status === filter.key
-                        ? "border-indigo-100 bg-indigo-50 text-indigo-700"
-                        : "border-transparent text-slate-500 hover:bg-slate-50"
-                    }`}
-                    key={filter.key}
-                    onClick={() => setStatus(filter.key)}
-                  >
-                    {filter.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {smartExplanation && (
-              <p className="border-b border-indigo-100 bg-indigo-50/60 px-5 py-2 text-[11px] text-indigo-800">
-                {smartExplanation}
-              </p>
-            )}
-
-            {selectedIds.length > 0 && (
-              <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-slate-50 px-5 py-3 text-xs">
-                <strong className="mr-2">{selectedIds.length} selected</strong>
-                <button className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-semibold hover:bg-slate-100" onClick={() => void updateSelected({ readStatus: true })}>Mark read</button>
-                <button className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-semibold hover:bg-slate-100" onClick={() => void updateSelected({ archivedStatus: true })}>Archive</button>
-                <button className="ml-auto px-2 py-1.5 text-slate-500 hover:text-slate-800" onClick={() => setSelectedIds([])}>Clear selection</button>
-              </div>
-            )}
-
-            <div>
-              {loading ? (
-                <div className="flex items-center justify-center gap-2 py-16 text-sm text-slate-500">
-                  <LoaderCircle className="animate-spin text-indigo-600" size={18} />
-                  Loading notifications...
+            <section className="overflow-hidden rounded-xl border border-slate-200 bg-white shadow-sm">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-5">
+                <div>
+                  <h2 className="font-display text-base font-bold text-slate-900">
+                    Notification inbox
+                  </h2>
+                  <p className="mt-1 text-xs text-slate-500">
+                    Prioritized to help you focus on what matters.
+                  </p>
                 </div>
-              ) : visibleItems.length ? (
-                visibleItems.map((item) => (
-                  <NotificationItem
-                    item={item}
-                    key={item._id}
-                    onUpdate={updateItem}
-                    onSelect={(checked) => setSelectedIds((current) =>
-                      checked
-                        ? [...new Set([...current, item._id])]
-                        : current.filter((id) => id !== item._id),
-                    )}
-                    onOpen={setDetailItem}
-                    selected={selectedIds.includes(item._id)}
+                <span className="inline-flex items-center gap-1.5 rounded-md bg-emerald-50 px-2.5 py-1.5 text-[10px] font-bold text-emerald-700">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
+                  Live data
+                </span>
+              </div>
+
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-5 py-3">
+                <label className="flex h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-slate-200 px-3 text-slate-400 focus-within:border-indigo-400">
+                  <Search size={16} />
+                  <input
+                    className="w-full border-0 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+                    onChange={(event) => {
+                      setQuery(event.target.value);
+                      setSmartResults(null);
+                      setSmartExplanation("");
+                    }}
+                    placeholder="Search notifications..."
+                    value={query}
                   />
-                ))
-              ) : (
-                <div className="flex flex-col items-center gap-2 px-4 py-14 text-center text-slate-400">
-                  <CheckCheck size={25} />
-                  <strong className="text-sm text-slate-700">
-                    You&apos;re all caught up
+                </label>
+                <div className="flex flex-wrap items-center gap-1">
+                  <button
+                    className="inline-flex items-center gap-1 rounded-md border border-indigo-100 bg-indigo-50 px-2.5 py-2 text-[11px] font-semibold text-indigo-700 disabled:opacity-50"
+                    disabled={smartBusy || !query.trim()}
+                    onClick={() => void runSmartSearch()}
+                  >
+                    {smartBusy ? (
+                      <LoaderCircle className="animate-spin" size={13} />
+                    ) : (
+                      <Sparkles size={13} />
+                    )}
+                    Smart search
+                  </button>
+                  {filters.map((filter) => (
+                    <button
+                      className={`rounded-md border px-3 py-2 text-[11px] font-semibold transition ${
+                        status === filter.key
+                          ? "border-indigo-100 bg-indigo-50 text-indigo-700"
+                          : "border-transparent text-slate-500 hover:bg-slate-50"
+                      }`}
+                      key={filter.key}
+                      onClick={() => setStatus(filter.key)}
+                    >
+                      {filter.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {smartExplanation && (
+                <p className="border-b border-indigo-100 bg-indigo-50/60 px-5 py-2 text-[11px] text-indigo-800">
+                  {smartExplanation}
+                </p>
+              )}
+
+              {selectedIds.length > 0 && (
+                <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-slate-50 px-5 py-3 text-xs">
+                  <strong className="mr-2">
+                    {selectedIds.length} selected
                   </strong>
-                  <span className="text-xs">
-                    No notifications match this view.
-                  </span>
+                  <button
+                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-semibold hover:bg-slate-100"
+                    onClick={() => void updateSelected({ readStatus: true })}
+                  >
+                    Mark read
+                  </button>
+                  <button
+                    className="rounded-md border border-slate-200 bg-white px-3 py-1.5 font-semibold hover:bg-slate-100"
+                    onClick={() =>
+                      void updateSelected({ archivedStatus: true })
+                    }
+                  >
+                    Archive
+                  </button>
+                  <button
+                    className="ml-auto px-2 py-1.5 text-slate-500 hover:text-slate-800"
+                    onClick={() => setSelectedIds([])}
+                  >
+                    Clear selection
+                  </button>
                 </div>
               )}
-            </div>
 
-            <div className="flex justify-between border-t border-slate-100 px-5 py-3 text-[10px] text-slate-400">
-              <span>Showing {visibleItems.length} notifications</span>
-              <span>Sorted by recent activity</span>
-            </div>
-          </section>
+              <div>
+                {loading ? (
+                  <div className="flex items-center justify-center gap-2 py-16 text-sm text-slate-500">
+                    <LoaderCircle
+                      className="animate-spin text-indigo-600"
+                      size={18}
+                    />
+                    Loading notifications...
+                  </div>
+                ) : visibleItems.length ? (
+                  visibleItems.map((item) => (
+                    <NotificationItem
+                      item={item}
+                      key={item._id}
+                      onUpdate={updateItem}
+                      onSelect={(checked) =>
+                        setSelectedIds((current) =>
+                          checked
+                            ? [...new Set([...current, item._id])]
+                            : current.filter((id) => id !== item._id),
+                        )
+                      }
+                      onOpen={setDetailItem}
+                      selected={selectedIds.includes(item._id)}
+                    />
+                  ))
+                ) : (
+                  <div className="flex flex-col items-center gap-2 px-4 py-14 text-center text-slate-400">
+                    <CheckCheck size={25} />
+                    <strong className="text-sm text-slate-700">
+                      You&apos;re all caught up
+                    </strong>
+                    <span className="text-xs">
+                      No notifications match this view.
+                    </span>
+                  </div>
+                )}
+              </div>
+
+              <div className="flex justify-between border-t border-slate-100 px-5 py-3 text-[10px] text-slate-400">
+                <span>Showing {visibleItems.length} notifications</span>
+                <span>Sorted by recent activity</span>
+              </div>
+            </section>
           )}
 
-          {activePage === "overview" && <div className="mt-5 flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs leading-5 text-indigo-900/75">
-            <Sparkles className="shrink-0 text-indigo-600" size={16} />
-            <span>
-              <strong className="text-indigo-900">Stay focused.</strong>{" "}
-              NotifyAI helps you spend less time managing notifications and more
-              time on what matters.
-            </span>
-          </div>}
+          {activePage === "overview" && (
+            <div className="mt-5 flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs leading-5 text-indigo-900/75">
+              <Sparkles className="shrink-0 text-indigo-600" size={16} />
+              <span>
+                <strong className="text-indigo-900">Stay focused.</strong>{" "}
+                NotifyAI helps you spend less time managing notifications and
+                more time on what matters.
+              </span>
+            </div>
+          )}
         </section>
       </main>
       {showQuickAdd && (
         <QuickAdd
           onClose={() => setShowQuickAdd(false)}
-          onCreated={(notification) => setItems((current) => [notification, ...current])}
+          onCreated={(notification) =>
+            setItems((current) => [notification, ...current])
+          }
           onNotice={showNotice}
         />
       )}
       {detailItem && (
         <NotificationDetail
           item={detailItem}
+          onAnalyze={analyzeItem}
           onClose={() => setDetailItem(null)}
+          onDelete={deleteItem}
+          onNotice={showNotice}
           onUpdate={updateItem}
         />
       )}
