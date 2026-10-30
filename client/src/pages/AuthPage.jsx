@@ -1,9 +1,13 @@
 import { useState } from "react";
 import { Bell, Eye, EyeOff, LoaderCircle } from "lucide-react";
+import { useSearchParams } from "react-router-dom";
 import api from "../services/api.js";
 
 const AuthPage = ({ onAuthenticated }) => {
-  const [mode, setMode] = useState("login");
+  const [searchParams] = useSearchParams();
+  const [mode, setMode] = useState(
+    searchParams.get("mode") === "register" ? "register" : "login",
+  );
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -50,7 +54,7 @@ const AuthPage = ({ onAuthenticated }) => {
               <span className="grid h-10 w-10 place-items-center rounded-xl bg-white/15">
                 <Bell size={20} />
               </span>
-              Notify<span className="text-indigo-200">AI</span>
+              <span className="text-indigo-200">NotifyAI</span>
             </div>
             <div className="mt-24 max-w-sm">
               <p className="text-xs font-bold uppercase tracking-[0.2em] text-indigo-200">

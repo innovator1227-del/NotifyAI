@@ -1,8 +1,7 @@
 import { useCallback, useEffect, useState } from "react";
 import { AlertCircle, LoaderCircle } from "lucide-react";
-import AuthPage from "./pages/AuthPage.jsx";
-import Dashboard from "./pages/Dashboard.jsx";
 import api from "./services/api.js";
+import AppRouter from "./app/router.jsx";
 const App = () => {
   const [user, setUser] = useState(null);
   const [checkingSession, setCheckingSession] = useState(
@@ -95,19 +94,16 @@ const App = () => {
     );
   }
 
-  if (!user) {
-    return (
-      <AuthPage
-        onAuthenticated={(authenticatedUser) => {
-          setSessionError("");
-          setUser(authenticatedUser);
-        }}
-      />
-    );
-  }
-
   return (
-    <Dashboard onLogout={clearSession} onUserUpdated={setUser} user={user} />
+    <AppRouter
+      onAuthenticated={(authenticatedUser) => {
+        setSessionError("");
+        setUser(authenticatedUser);
+      }}
+      onLogout={clearSession}
+      onUserUpdated={setUser}
+      user={user}
+    />
   );
 };
 
