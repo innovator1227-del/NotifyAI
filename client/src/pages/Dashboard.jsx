@@ -324,7 +324,7 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
       </aside>
 
       <main className="min-h-screen md:ml-60">
-        <header className="flex h-16 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8">
+        <header className="sticky top-0 z-50 w-full flex h-16 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8">
           <div className="flex items-center gap-2 text-xs">
             <span className="text-slate-400">Workspace</span>
             <span className="text-slate-300">/</span>
