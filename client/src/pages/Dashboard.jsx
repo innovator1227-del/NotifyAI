@@ -27,6 +27,8 @@ import RulesPage from "./RulesPage.jsx";
 import SettingsPage from "./SettingsPage.jsx";
 import SummariesPage from "./SummariesPage.jsx";
 import api from "../services/api.js";
+import Header from "../components/common/dashboardheader/Header.jsx";
+import Sidebar from "../components/common/sidebar/Sidebar.jsx";
 
 const filters = [
   { key: "all", label: "All" },
@@ -272,86 +274,22 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
 
   return (
     <div className="min-h-screen bg-slate-50 text-slate-800">
-      <aside className="fixed inset-y-0 left-0 z-10 hidden w-60 flex-col border-r border-slate-200 bg-white px-4 py-6 md:flex">
-        <div className="mb-12 flex items-center gap-2.5 px-2 font-display text-xl font-extrabold tracking-tight text-slate-900">
-          <span className="grid h-9 w-9 place-items-center rounded-xl bg-indigo-600 text-white">
-            <Bell size={19} />
-          </span>
-          Notify<span className="-ml-2 text-indigo-600">AI</span>
-        </div>
-        <p className="mb-3 px-3 text-[10px] font-bold tracking-[0.16em] text-slate-400">
-          WORKSPACE
-        </p>
-        <nav aria-label="Workspace" className="space-y-1">
-          {pages.map(({ key, label, icon: Icon }) => (
-            <button
-              className={`flex h-10 w-full items-center gap-3 rounded-lg px-3 text-left text-sm ${
-                activePage === key
-                  ? "bg-indigo-50 font-bold text-indigo-700"
-                  : "font-medium text-slate-600 hover:bg-slate-50"
-              }`}
-              key={key}
-              onClick={() => selectPage(key)}
-            >
-              <Icon size={17} /> {label}
-              {key === "inbox" && (
-                <span className="ml-auto rounded-md border border-slate-200 px-1.5 py-0.5 text-[10px] text-slate-500">
-                  {activeItems.length}
-                </span>
-              )}
-            </button>
-          ))}
-        </nav>
-        <div className="mt-auto flex items-center gap-3 border-t border-slate-100 px-2 pt-5">
-          <div className="grid h-9 w-9 shrink-0 place-items-center rounded-full bg-indigo-100 text-sm font-bold text-indigo-700">
-            {user.name.slice(0, 1).toUpperCase()}
-          </div>
-          <div className="min-w-0 flex-1">
-            <p className="truncate text-xs font-bold text-slate-800">
-              {user.name}
-            </p>
-            <p className="truncate text-[11px] text-slate-400">{user.email}</p>
-          </div>
-          <button
-            aria-label="Sign out"
-            className="rounded-md p-2 text-slate-400 hover:bg-slate-100 hover:text-slate-700"
-            onClick={signOut}
-            title="Sign out"
-          >
-            <LogOut size={16} />
-          </button>
-        </div>
-      </aside>
-
+      <Sidebar
+        pages={pages}
+        activePage={activePage}
+        selectPage={selectPage}
+        activeItems={activeItems}
+        user={user}
+        signOut={signOut}
+      />
       <main className="min-h-screen md:ml-60">
-        <header className="sticky top-0 z-50 w-full flex h-16 items-center justify-between border-b border-slate-200 bg-white px-5 sm:px-8">
-          <div className="flex items-center gap-2 text-xs">
-            <span className="text-slate-400">Workspace</span>
-            <span className="text-slate-300">/</span>
-            <strong className="text-slate-700">
-              {pages.find((page) => page.key === activePage)?.label}
-            </strong>
-          </div>
-          <div className="flex items-center gap-2 text-xs text-slate-500">
-            <span
-              className={`h-2 w-2 rounded-full ${aiConfigured ? "bg-emerald-500" : "bg-amber-400"}`}
-            />
-            {aiConfigured ? "AI connected" : "Local analysis"}
-            <button
-              className="ml-3 inline-flex h-8 items-center gap-1.5 rounded-lg border border-slate-200 px-2.5 text-[11px] font-semibold text-slate-700 hover:bg-slate-50"
-              onClick={() => setShowQuickAdd(true)}
-            >
-              <Plus size={14} /> Add
-            </button>
-            <button
-              aria-label="Sign out"
-              className="ml-2 rounded-lg p-2 text-slate-500 hover:bg-slate-100 md:hidden"
-              onClick={signOut}
-            >
-              <LogOut size={16} />
-            </button>
-          </div>
-        </header>
+        <Header
+          aiConfigured={aiConfigured}
+          setShowQuickAdd={setShowQuickAdd}
+          signOut={signOut}
+          pages={pages}
+          activePage={activePage}
+        />
 
         <nav
           aria-label="Workspace pages"
