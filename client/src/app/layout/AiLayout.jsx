@@ -7,7 +7,7 @@ const AiLayout = () => {
         <Outlet />
       </main>
 
-      <footer className="border-t border-slate-200 bg-white px-6 py-4 text-center text-sm text-slate-500">
+      <footer className="border-t border-slate-200 bg-white px-6 py-4 text-center text-sm text-slate-500 font-serif">
         © {new Date().getFullYear()} NotifyAI. All rights reserved.
       </footer>
     </div>

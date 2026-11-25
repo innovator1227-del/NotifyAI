@@ -51,7 +51,7 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
   const [smartResults, setSmartResults] = useState(null);
   const [smartExplanation, setSmartExplanation] = useState("");
   const [smartBusy, setSmartBusy] = useState(false);
-  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const loadNotifications = useCallback(async () => {
     setLoading(true);
@@ -272,7 +272,9 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
         sidebarOpen={sidebarOpen}
         setSidebarOpen={setSidebarOpen}
       />
-      <main className="min-h-screen md:ml-60">
+      <main
+        className={`min-h-screen transition-all duration-300 ${sidebarOpen ? "md:ml-60" : "md:ml-20"} `}
+      >
         <AiHeader
           aiConfigured={aiConfigured}
           setShowQuickAdd={setShowQuickAdd}

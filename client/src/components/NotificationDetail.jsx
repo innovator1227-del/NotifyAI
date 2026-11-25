@@ -13,14 +13,14 @@ import api from "../services/api.js";
 const categories = ["Work", "Personal", "Security", "Promotion", "Other"];
 const priorities = ["critical", "high", "medium", "low"];
 
-export default function NotificationDetail({
+const NotificationDetail = ({
   item,
   onClose,
   onUpdate,
   onAnalyze,
   onDelete,
   onNotice,
-}) {
+}) => {
   const [learnAsRule, setLearnAsRule] = useState(false);
   const [analyzing, setAnalyzing] = useState(false);
   const [confirmingDelete, setConfirmingDelete] = useState(false);
@@ -259,4 +259,6 @@ export default function NotificationDetail({
       </section>
     </div>
   );
-}
+};
+
+export default NotificationDetail;

@@ -2,7 +2,7 @@ import { ArrowRight, Bell, Check, Clock3, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = () => (
-  <main className="relative isolate min-h-[calc(100vh-4.5rem)] overflow-hidden bg-slate-50">
+  <main className="relative isolate min-h-[calc(100vh-4.5rem)] overflow-hidden bg-slate-50 font-serif">
     <div className="pointer-events-none absolute inset-0 -z-10 overflow-hidden">
       <div className="absolute -left-40 -top-32 h-[28rem] w-[28rem] rounded-full bg-indigo-200/40 blur-3xl" />
       <div className="absolute -right-32 top-20 h-[26rem] w-[26rem] rounded-full bg-violet-200/40 blur-3xl" />
