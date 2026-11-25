@@ -8,6 +8,7 @@ import aiRoutes from "./routes/aiRoutes.js";
 import ruleRoutes from "./routes/ruleRoutes.js";
 import integrationRoutes from "./routes/integrationRoutes.js";
 import settingsRoutes from "./routes/settingsRoutes.js";
+import telegramRoutes from "./routes/telegramRoute.js";
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL || "http://localhost:5173" }));
@@ -22,6 +23,7 @@ app.use("/api/ai", aiRoutes);
 app.use("/api/rules", ruleRoutes);
 app.use("/api/integrations", integrationRoutes);
 app.use("/api/settings", settingsRoutes);
+app.use("/api/telegram", telegramRoutes);
 
 app.use((error, _req, res, _next) => {
   console.error(error);

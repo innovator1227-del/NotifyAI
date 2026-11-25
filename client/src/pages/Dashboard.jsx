@@ -336,26 +336,27 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
           pages={pages}
           onUserUpdated={onUserUpdated}
         />
+
+        {showQuickAdd && (
+          <QuickAdd
+            onClose={() => setShowQuickAdd(false)}
+            onCreated={(notification) =>
+              setItems((current) => [notification, ...current])
+            }
+            onNotice={showNotice}
+          />
+        )}
+        {detailItem && (
+          <NotificationDetail
+            item={detailItem}
+            onAnalyze={analyzeItem}
+            onClose={() => setDetailItem(null)}
+            onDelete={deleteItem}
+            onNotice={showNotice}
+            onUpdate={updateItem}
+          />
+        )}
       </main>
-      {showQuickAdd && (
-        <QuickAdd
-          onClose={() => setShowQuickAdd(false)}
-          onCreated={(notification) =>
-            setItems((current) => [notification, ...current])
-          }
-          onNotice={showNotice}
-        />
-      )}
-      {detailItem && (
-        <NotificationDetail
-          item={detailItem}
-          onAnalyze={analyzeItem}
-          onClose={() => setDetailItem(null)}
-          onDelete={deleteItem}
-          onNotice={showNotice}
-          onUpdate={updateItem}
-        />
-      )}
     </div>
   );
 };
