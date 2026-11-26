@@ -1,6 +1,6 @@
 const TELEGRAM_API = "https://api.telegram.org";
 
-export async function telegramRequest(method, payload = {}) {
+export const telegramRequest = async (method, payload = {}) => {
   const token = process.env.TELEGRAM_BOT_TOKEN;
 
   if (!token) {
@@ -22,16 +22,16 @@ export async function telegramRequest(method, payload = {}) {
   }
 
   return data.result;
-}
+};
 
-export async function sendTelegramMessage(chatId, text) {
+export const sendTelegramMessage = async (chatId, text) => {
   return telegramRequest("sendMessage", {
     chat_id: chatId,
     text,
   });
-}
+};
 
-export async function setTelegramWebhook() {
+export const setTelegramWebhook = async () => {
   const publicUrl = process.env.SERVER_PUBLIC_URL?.replace(/\/+$/, "");
   const secret = process.env.TELEGRAM_WEBHOOK_SECRET;
 
@@ -49,8 +49,8 @@ export async function setTelegramWebhook() {
     allowed_updates: ["message", "edited_message"],
     drop_pending_updates: false,
   });
-}
+};
 
-export async function getTelegramWebhookInfo() {
+export const getTelegramWebhookInfo = async () => {
   return telegramRequest("getWebhookInfo");
-}
+};
