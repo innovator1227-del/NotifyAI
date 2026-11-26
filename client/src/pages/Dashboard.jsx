@@ -261,7 +261,7 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
   }
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen bg-slate-50 text-slate-800 font-serif">
       <Sidebar
         pages={pages}
         activePage={activePage}
@@ -281,6 +281,10 @@ const Dashboard = ({ user, onLogout, onUserUpdated }) => {
           signOut={signOut}
           pages={pages}
           activePage={activePage}
+          setQuery={setQuery}
+          setSmartResults={setSmartResults}
+          setSmartExplanation={setSmartExplanation}
+          query={query}
           onToggleSidebar={() => setSidebarOpen((prev) => !prev)}
         />
 

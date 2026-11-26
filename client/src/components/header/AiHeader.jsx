@@ -1,4 +1,4 @@
-import { LogOut, PanelLeft, Plus } from "lucide-react";
+import { LogOut, PanelLeft, Plus, Search } from "lucide-react";
 import React from "react";
 
 const AiHeader = ({
@@ -8,10 +8,14 @@ const AiHeader = ({
   pages = [],
   activePage,
   onToggleSidebar,
+  setQuery,
+  setSmartResults,
+  setSmartExplanation,
+  query,
 }) => {
   return (
-    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-5 shadow-lg sm:px-8 font-serif">
-      <div className="flex items-center gap-2">
+    <header className="sticky top-0 z-50 flex h-16 w-full items-center justify-between border-b border-slate-200 bg-white px-5 shadow-sm sm:px-8 font-serif">
+      <div className="flex flex-1 items-center gap-4">
         <button
           onClick={onToggleSidebar}
           aria-label="Toggle sidebar"
@@ -24,21 +28,33 @@ const AiHeader = ({
           />
         </button>
 
-        <span className="hidden text-slate-800 sm:inline">
+        <span className="hidden text-slate-800 sm:inline  bg-blue-100 p-1.5 rounded-lg">
           Notification Management
         </span>
-
-        <span className="text-slate-300">/</span>
 
         <strong className="text-slate-700">
           {pages.find((page) => page.key === activePage)?.label}
         </strong>
+
+        <label className="flex h-9 w-full max-w-sm items-center gap-2 rounded-lg border border-slate-300 px-3 text-slate-400 focus-within:border-indigo-400">
+          <Search size={16} />
+          <input
+            className="w-full border-0 bg-transparent text-xs text-slate-700 outline-none placeholder:text-slate-400"
+            onChange={(event) => {
+              setQuery(event.target.value);
+              setSmartResults(null);
+              setSmartExplanation("");
+            }}
+            placeholder="Search notifications..."
+            value={query}
+          />
+        </label>
       </div>
 
       <div className="flex items-center gap-2 text-sm text-slate-900">
         <span
           className={`h-2 w-2 rounded-full ${
-            aiConfigured ? "bg-emerald-500" : "bg-amber-400"
+            aiConfigured ? "bg-emerald-500" : "bg-blue-400"
           }`}
         />
 

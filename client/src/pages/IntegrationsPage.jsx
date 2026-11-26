@@ -6,6 +6,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import api from "../services/api.js";
+import TelegramIntegration from "./TelegramIntegration.jsx";
 
 const providerDescriptions = {
   Facebook: "Security and social notifications",
@@ -13,20 +14,26 @@ const providerDescriptions = {
   X: "Updates and mentions",
   LinkedIn: "Work and network notifications",
   YouTube: "New videos and channel updates",
-  Telegram: "Messages and group alerts",
+  // Telegram: "Messages and group alerts",
   Demo: "Sample notifications for exploring the inbox",
 };
 
 const IntegrationsPage = ({ onNotice, onSynced }) => {
   const [integrations, setIntegrations] = useState([]);
-  const [providers, setProviders] = useState(Object.keys(providerDescriptions));
+  const [providers, setProviders] = useState(
+    Object.keys(providerDescriptions).filter(
+      (provider) => provider !== "Telegram",
+    ),
+  );
   const [busyProvider, setBusyProvider] = useState("");
 
   async function loadIntegrations() {
     try {
       const { data } = await api.get("/integrations");
       setIntegrations(data.integrations);
-      setProviders(data.providers);
+      setProviders(
+        data.providers.filter((provider) => provider !== "Telegram"),
+      );
     } catch (error) {
       onNotice(error.response?.data?.message || "Could not load integrations.");
     }
@@ -63,6 +70,7 @@ const IntegrationsPage = ({ onNotice, onSynced }) => {
         access and credentials; no live account is connected here.
       </div>
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
+        <TelegramIntegration onNotice={onNotice} onSynced={onSynced} />
         {providers.map((provider) => {
           const integration = integrations.find(
             (item) => item.provider === provider,

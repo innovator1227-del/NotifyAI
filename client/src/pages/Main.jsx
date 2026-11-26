@@ -5,6 +5,7 @@ import {
   CircleAlert,
   Inbox,
   LoaderCircle,
+  RotateCcw,
   Search,
   Sparkles,
   Star,
@@ -81,7 +82,7 @@ const Main = ({
               {busy ? (
                 <LoaderCircle className="animate-spin" size={16} />
               ) : (
-                <Sparkles size={16} />
+                <RotateCcw size={16} />
               )}
               {busy ? "Working..." : "Run AI triage"}
             </button>
@@ -199,7 +200,7 @@ const Main = ({
                   {smartBusy ? (
                     <LoaderCircle className="animate-spin" size={13} />
                   ) : (
-                    <Sparkles size={13} />
+                    <Search size={13} />
                   )}
                   Smart search
                 </button>
