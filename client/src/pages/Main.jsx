@@ -104,7 +104,7 @@ const Main = ({
               className="text-lg leading-none text-blue-700"
               onClick={() => setNotice("")}
             >
-              ×
+              X
             </button>
           </div>
         )}
