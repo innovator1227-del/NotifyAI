@@ -6,7 +6,7 @@ import {
 } from "../services/aiService.js";
 import mongoose from "mongoose";
 
-export async function listNotifications(req, res) {
+const listNotifications = async (req, res) => {
   const {
     q,
     platform,
@@ -67,7 +67,7 @@ export async function listNotifications(req, res) {
     Notification.countDocuments(filter),
   ]);
   res.json({ rows, count, page: safePage, limit: safeLimit });
-}
+};
 
 const escapeRegex = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 const platforms = [
@@ -82,7 +82,7 @@ const platforms = [
 const categories = ["Work", "Personal", "Security", "Promotion", "Other"];
 const priorities = ["critical", "high", "medium", "low"];
 
-export async function createNotification(req, res) {
+const createNotification = async (req, res) => {
   const { platform, senderName, senderUsername, message, category, priority } =
     req.body || {};
   if (
@@ -147,9 +147,9 @@ export async function createNotification(req, res) {
     }
   }
   res.status(201).json({ notification, analysisError });
-}
+};
 
-export async function updateNotification(req, res) {
+const updateNotification = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid notification id." });
   }
@@ -207,9 +207,9 @@ export async function updateNotification(req, res) {
   if (!notification)
     return res.status(404).json({ message: "Notification not found" });
   res.json({ notification });
-}
+};
 
-export async function analyzeNotification(req, res) {
+const analyzeNotification = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid notification id." });
   }
@@ -232,9 +232,9 @@ export async function analyzeNotification(req, res) {
   );
   await notification.save();
   res.json({ notification });
-}
+};
 
-export async function deleteNotification(req, res) {
+const deleteNotification = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid notification id." });
   }
@@ -245,9 +245,9 @@ export async function deleteNotification(req, res) {
   if (!notification)
     return res.status(404).json({ message: "Notification not found" });
   res.json({ success: true });
-}
+};
 
-export async function bulkUpdateNotifications(req, res) {
+const bulkUpdateNotifications = async (req, res) => {
   const { ids, patch } = req.body || {};
   const allowed = ["readStatus", "archivedStatus", "isImportant"];
   if (
@@ -277,9 +277,9 @@ export async function bulkUpdateNotifications(req, res) {
     { $set: patch },
   );
   res.json({ updated: result.modifiedCount });
-}
+};
 
-export async function notificationStats(req, res) {
+const notificationStats = async (req, res) => {
   const rows = await Notification.find({
     user: req.userId,
     archivedStatus: false,
@@ -298,4 +298,14 @@ export async function notificationStats(req, res) {
       {},
     ),
   });
-}
+};
+
+export {
+  listNotifications,
+  updateNotification,
+  createNotification,
+  analyzeNotification,
+  bulkUpdateNotifications,
+  notificationStats,
+  deleteNotification,
+};

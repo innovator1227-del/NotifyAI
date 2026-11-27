@@ -1,14 +1,18 @@
 import Integration from "../models/Integration.js";
 import Notification from "../models/Notification.js";
 import User from "../models/User.js";
-import { applyUserPreferences, triageNotification } from "../services/aiService.js";
+import {
+  applyUserPreferences,
+  triageNotification,
+} from "../services/aiService.js";
 
 const demoMessages = {
   Facebook: [
     {
       senderName: "Facebook Security",
       senderUsername: "security",
-      message: "A new sign-in was detected for your account. Review it if it wasn't you.",
+      message:
+        "A new sign-in was detected for your account. Review it if it wasn't you.",
       category: "Security",
       priority: "critical",
     },
@@ -56,16 +60,8 @@ const demoMessages = {
       priority: "low",
     },
   ],
-  Telegram: [
-    {
-      senderName: "Project Team",
-      senderUsername: "project-team",
-      message: "The project review meeting starts in 30 minutes.",
-      category: "Work",
-      priority: "high",
-    },
-  ],
-  Demo: [
+
+  TikTok: [
     {
       senderName: "NotifyAI Demo",
       senderUsername: "demo",
@@ -78,15 +74,19 @@ const demoMessages = {
 
 const allowedProviders = Object.keys(demoMessages);
 
-export async function listIntegrations(req, res) {
-  const integrations = await Integration.find({ user: req.userId }).sort({ provider: 1 });
+const listIntegrations = async (req, res) => {
+  const integrations = await Integration.find({ user: req.userId }).sort({
+    provider: 1,
+  });
   res.json({ integrations, providers: allowedProviders });
-}
+};
 
-export async function syncDemoProvider(req, res) {
+const syncDemoProvider = async (req, res) => {
   const { provider } = req.body || {};
   if (!allowedProviders.includes(provider)) {
-    return res.status(400).json({ message: "Choose a supported demo provider." });
+    return res
+      .status(400)
+      .json({ message: "Choose a supported demo provider." });
   }
 
   const batch = demoMessages[provider];
@@ -145,16 +145,27 @@ export async function syncDemoProvider(req, res) {
         })),
       );
     } catch (error) {
-      console.error("Automatic demo notification analysis failed:", error.message);
-      analysisError = "Notifications were imported, but automatic analysis failed.";
+      console.error(
+        "Automatic demo notification analysis failed:",
+        error.message,
+      );
+      analysisError =
+        "Notifications were imported, but automatic analysis failed.";
     }
   }
   const integration = await Integration.findOneAndUpdate(
     { user: req.userId, provider },
     {
-      $set: { status: "connected", isDemo: true, lastSyncAt: new Date(), error: "" },
+      $set: {
+        status: "connected",
+        isDemo: true,
+        lastSyncAt: new Date(),
+        error: "",
+      },
     },
     { new: true, upsert: true, runValidators: true },
   );
   res.json({ imported, integration, analysisError });
-}
+};
+
+export { syncDemoProvider, listIntegrations };

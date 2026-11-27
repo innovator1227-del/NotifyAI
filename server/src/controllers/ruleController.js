@@ -14,14 +14,16 @@ const actionTypes = [
 const categories = ["Work", "Personal", "Security", "Promotion", "Other"];
 const priorities = ["critical", "high", "medium", "low"];
 
-function validateRule(input) {
+const validateRule = (input) => {
   const name = typeof input.name === "string" ? input.name.trim() : "";
   const conditions = Array.isArray(input.conditions) ? input.conditions : [];
   const actions = Array.isArray(input.actions) ? input.actions : [];
   const matchMode = input.matchMode === "any" ? "any" : "all";
 
   if (!name || name.length > 100) {
-    return { error: "Rule name is required and must be 100 characters or fewer." };
+    return {
+      error: "Rule name is required and must be 100 characters or fewer.",
+    };
   }
   if (!conditions.length || conditions.length > 10) {
     return { error: "Rules need between 1 and 10 conditions." };
@@ -39,7 +41,10 @@ function validateRule(input) {
       !condition.value.trim() ||
       condition.value.length > 200
     ) {
-      return { error: "A rule condition contains an invalid field, operator, or value." };
+      return {
+        error:
+          "A rule condition contains an invalid field, operator, or value.",
+      };
     }
     normalizedConditions.push({
       field: condition.field,
@@ -72,12 +77,15 @@ function validateRule(input) {
       actions: normalizedActions,
       matchMode,
       active: input.active !== false,
-      rulePriority: Math.max(-100, Math.min(100, Number(input.rulePriority) || 0)),
+      rulePriority: Math.max(
+        -100,
+        Math.min(100, Number(input.rulePriority) || 0),
+      ),
     },
   };
-}
+};
 
-function matchesRule(notification, rule) {
+const matchesRule = (notification, rule) => {
   const comparisons = rule.conditions.map((condition) => {
     const value = {
       sender: notification.senderName,
@@ -95,17 +103,19 @@ function matchesRule(notification, rule) {
   return rule.matchMode === "any"
     ? comparisons.some(Boolean)
     : comparisons.every(Boolean);
-}
+};
 
-function actionEffects(notification, actions) {
+const actionEffects = (notification, actions) => {
   const updated = {};
   for (const action of actions) {
     switch (action.type) {
       case "set_priority":
-        if (!notification.userOverride?.priority) updated.priority = action.value;
+        if (!notification.userOverride?.priority)
+          updated.priority = action.value;
         break;
       case "set_category":
-        if (!notification.userOverride?.category) updated.category = action.value;
+        if (!notification.userOverride?.category)
+          updated.category = action.value;
         break;
       case "archive":
         updated.archivedStatus = true;
@@ -119,48 +129,54 @@ function actionEffects(notification, actions) {
     }
   }
   return updated;
-}
+};
 
-export async function listRules(req, res) {
+const listRules = async (req, res) => {
   const rules = await Rule.find({ user: req.userId }).sort({
     rulePriority: -1,
     createdAt: -1,
   });
   res.json({ rules });
-}
+};
 
-export async function createRule(req, res) {
+const createRule = async (req, res) => {
   const validation = validateRule(req.body || {});
-  if (validation.error) return res.status(400).json({ message: validation.error });
+  if (validation.error)
+    return res.status(400).json({ message: validation.error });
   const rule = await Rule.create({ user: req.userId, ...validation.value });
   res.status(201).json({ rule });
-}
+};
 
-export async function updateRule(req, res) {
+const updateRule = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid rule id." });
   }
   const current = await Rule.findOne({ _id: req.params.id, user: req.userId });
   if (!current) return res.status(404).json({ message: "Rule not found." });
   const validation = validateRule({ ...current.toObject(), ...req.body });
-  if (validation.error) return res.status(400).json({ message: validation.error });
+  if (validation.error)
+    return res.status(400).json({ message: validation.error });
   Object.assign(current, validation.value);
   await current.save();
   res.json({ rule: current });
-}
+};
 
-export async function deleteRule(req, res) {
+const deleteRule = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid rule id." });
   }
-  const rule = await Rule.findOneAndDelete({ _id: req.params.id, user: req.userId });
+  const rule = await Rule.findOneAndDelete({
+    _id: req.params.id,
+    user: req.userId,
+  });
   if (!rule) return res.status(404).json({ message: "Rule not found." });
   res.json({ success: true });
-}
+};
 
-export async function previewRule(req, res) {
+const previewRule = async (req, res) => {
   const validation = validateRule(req.body || {});
-  if (validation.error) return res.status(400).json({ message: validation.error });
+  if (validation.error)
+    return res.status(400).json({ message: validation.error });
   const notifications = await Notification.find({
     user: req.userId,
     archivedStatus: false,
@@ -182,15 +198,18 @@ export async function previewRule(req, res) {
     effects,
     sample: matched.slice(0, 8),
   });
-}
+};
 
-export async function applyRule(req, res) {
+const applyRule = async (req, res) => {
   if (!mongoose.isValidObjectId(req.params.id)) {
     return res.status(400).json({ message: "Invalid rule id." });
   }
   const rule = await Rule.findOne({ _id: req.params.id, user: req.userId });
   if (!rule) return res.status(404).json({ message: "Rule not found." });
-  if (!rule.active) return res.status(400).json({ message: "Enable the rule before applying it." });
+  if (!rule.active)
+    return res
+      .status(400)
+      .json({ message: "Enable the rule before applying it." });
   const notifications = await Notification.find({
     user: req.userId,
     archivedStatus: false,
@@ -210,4 +229,13 @@ export async function applyRule(req, res) {
   rule.lastRunAt = new Date();
   await rule.save();
   res.json({ updated: updates.length });
-}
+};
+
+export {
+  listRules,
+  createRule,
+  updateRule,
+  deleteRule,
+  previewRule,
+  applyRule,
+};

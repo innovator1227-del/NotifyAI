@@ -7,7 +7,8 @@ const hashToken = (token) =>
   crypto.createHash("sha256").update(token).digest("hex");
 
 // Generate a temporary Telegram connection link.
-export async function createTelegramLink(req, res, next) {
+
+const createTelegramLink = async (req, res, next) => {
   try {
     const botUsername = process.env.TELEGRAM_BOT_USERNAME?.replace(/^@/, "");
 
@@ -47,10 +48,10 @@ export async function createTelegramLink(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+};
 
 // Return current user's Telegram connection status.
-export async function getTelegramStatus(req, res, next) {
+const getTelegramStatus = async (req, res, next) => {
   try {
     const connection = await TelegramConnection.findOne({
       user: req.userId,
@@ -70,10 +71,10 @@ export async function getTelegramStatus(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+};
 
 // Disconnect only the authenticated user's Telegram account.
-export async function disconnectTelegram(req, res, next) {
+const disconnectTelegram = async (req, res, next) => {
   try {
     await TelegramConnection.deleteOne({
       user: req.userId,
@@ -86,9 +87,9 @@ export async function disconnectTelegram(req, res, next) {
   } catch (error) {
     next(error);
   }
-}
+};
 
-function getMessageContent(message) {
+const getMessageContent = (message) => {
   if (message.text) return message.text;
   if (message.caption) return message.caption;
 
@@ -108,9 +109,9 @@ function getMessageContent(message) {
   const mediaType = mediaTypes.find((type) => message[type]);
 
   return mediaType ? `[Telegram ${mediaType} message]` : "";
-}
+};
 
-function getSenderName(message) {
+const getSenderName = (message) => {
   const from = message.from;
 
   if (!from) {
@@ -121,14 +122,14 @@ function getSenderName(message) {
     [from.first_name, from.last_name].filter(Boolean).join(" ") ||
     "Telegram user"
   );
-}
+};
 
-function isStartCommand(text = "") {
+const isStartCommand = (text = "") => {
   return /^\/start(?:@\w+)?(?:\s|$)/i.test(text);
-}
+};
 
 // Handle /start and connect Telegram to a NotifyAI account.
-async function handleStartCommand(message) {
+const handleStartCommand = async (message) => {
   const text = message.text || "";
   const match = text.match(/^\/start(?:@\w+)?(?:\s+([A-Za-z0-9_-]+))?/i);
   const token = match?.[1];
@@ -177,10 +178,10 @@ async function handleStartCommand(message) {
     message.chat.id,
     "Your Telegram account is now connected to NotifyAI! You can send or forward messages to this bot, and they will appear in your NotifyAI inbox.",
   );
-}
+};
 
 // Public endpoint called by Telegram.
-export async function handleTelegramWebhook(req, res) {
+const handleTelegramWebhook = async (req, res) => {
   const expectedSecret = process.env.TELEGRAM_WEBHOOK_SECRET || "";
   const receivedSecret = req.headers["x-telegram-bot-api-secret-token"] || "";
 
@@ -278,4 +279,11 @@ export async function handleTelegramWebhook(req, res) {
       message: "Could not process Telegram update",
     });
   }
-}
+};
+
+export {
+  createTelegramLink,
+  getTelegramStatus,
+  disconnectTelegram,
+  handleTelegramWebhook,
+};

@@ -5,13 +5,13 @@ const client = process.env.OPENAI_API_KEY
   ? new OpenAI({ apiKey: process.env.OPENAI_API_KEY })
   : null;
 
-export const getAiStatus = () => ({
+const getAiStatus = () => ({
   configured: Boolean(client),
   model: client ? model : null,
   fallbackAvailable: true,
 });
 
-export function applyUserPreferences(notification, result, preferences = {}) {
+const applyUserPreferences = (notification, result, preferences = {}) => {
   const updated = { ...result };
   const threshold = Number.isInteger(preferences.priorityThreshold)
     ? preferences.priorityThreshold
@@ -19,9 +19,13 @@ export function applyUserPreferences(notification, result, preferences = {}) {
   const contacts = Array.isArray(preferences.importantContacts)
     ? preferences.importantContacts
     : [];
-  const sender = `${notification.senderName || ""} ${notification.senderUsername || ""}`.toLowerCase();
+  const sender =
+    `${notification.senderName || ""} ${notification.senderUsername || ""}`.toLowerCase();
   const isImportantContact = contacts.some(
-    (contact) => typeof contact === "string" && contact.trim() && sender.includes(contact.trim().toLowerCase()),
+    (contact) =>
+      typeof contact === "string" &&
+      contact.trim() &&
+      sender.includes(contact.trim().toLowerCase()),
   );
   const isImportantCategory =
     Array.isArray(preferences.importantCategories) &&
@@ -33,8 +37,10 @@ export function applyUserPreferences(notification, result, preferences = {}) {
   ) {
     updated.priority = "high";
   }
-  if (notification.userOverride?.category) updated.category = notification.category;
-  if (notification.userOverride?.priority) updated.priority = notification.priority;
+  if (notification.userOverride?.category)
+    updated.category = notification.category;
+  if (notification.userOverride?.priority)
+    updated.priority = notification.priority;
   if (
     notification.isImportant ||
     isImportantContact ||
@@ -44,13 +50,13 @@ export function applyUserPreferences(notification, result, preferences = {}) {
     updated.isImportant = true;
   }
   return updated;
-}
+};
 
-function serviceError(status, message) {
+const serviceError = (status, message) => {
   return Object.assign(new Error(message), { status });
-}
+};
 
-async function requestJson(messages) {
+const requestJson = async (messages) => {
   if (!client) {
     throw serviceError(
       503,
@@ -78,36 +84,39 @@ async function requestJson(messages) {
     console.error("AI provider returned invalid JSON:", error.message);
     throw serviceError(502, "The AI provider returned an invalid response.");
   }
-}
+};
 
-export async function triageNotification({
-  senderName,
-  message,
-  platform,
-}, { forceRules = false, preferences = {} } = {}) {
+const triageNotification = async (
+  { senderName, message, platform },
+  { forceRules = false, preferences = {} } = {},
+) => {
   if (!client || forceRules) {
     const text = `${senderName} ${message}`.toLowerCase();
-    const category = /password|security|login|verification|suspicious|code/.test(text)
-      ? "Security"
-      : /job|work|meeting|project|interview|application/.test(text)
-        ? "Work"
-        : /sale|discount|offer|promo|deal|coupon/.test(text)
-          ? "Promotion"
-          : /friend|family|birthday|photo|comment|mention/.test(text)
-            ? "Personal"
-            : "Other";
-    const priority = category === "Security"
-      ? "critical"
-      : category === "Work"
-        ? "high"
-        : category === "Promotion"
-          ? "low"
-          : "medium";
+    const category =
+      /password|security|login|verification|suspicious|code/.test(text)
+        ? "Security"
+        : /job|work|meeting|project|interview|application/.test(text)
+          ? "Work"
+          : /sale|discount|offer|promo|deal|coupon/.test(text)
+            ? "Promotion"
+            : /friend|family|birthday|photo|comment|mention/.test(text)
+              ? "Personal"
+              : "Other";
+    const priority =
+      category === "Security"
+        ? "critical"
+        : category === "Work"
+          ? "high"
+          : category === "Promotion"
+            ? "low"
+            : "medium";
     return {
       category,
       priority,
-      importanceScore: priority === "critical" ? 95 : priority === "high" ? 75 : 45,
-      reason: "Classified with local rules because an AI provider is not configured.",
+      importanceScore:
+        priority === "critical" ? 95 : priority === "high" ? 75 : 45,
+      reason:
+        "Classified with local rules because an AI provider is not configured.",
       summary: message.trim().slice(0, 160),
       suggestedAction:
         priority === "critical"
@@ -115,7 +124,10 @@ export async function triageNotification({
           : priority === "high"
             ? "Review and follow up."
             : "Review when convenient.",
-      isSpam: /click here|claim your prize|verify your account immediately/.test(text),
+      isSpam:
+        /click here|claim your prize|verify your account immediately/.test(
+          text,
+        ),
       aiSource: "rules",
     };
   }
@@ -146,7 +158,10 @@ export async function triageNotification({
     typeof result.reason !== "string" ||
     (result.isSpam !== undefined && typeof result.isSpam !== "boolean")
   ) {
-    throw serviceError(502, "The AI provider returned an invalid classification.");
+    throw serviceError(
+      502,
+      "The AI provider returned an invalid classification.",
+    );
   }
 
   return {
@@ -157,18 +172,24 @@ export async function triageNotification({
       Math.max(0, Math.round(Number(result.importanceScore))),
     ),
     reason: result.reason.trim().slice(0, 240),
-    summary: typeof result.summary === "string"
-      ? result.summary.trim().slice(0, 240)
-      : message.trim().slice(0, 160),
-    suggestedAction: typeof result.suggestedAction === "string"
-      ? result.suggestedAction.trim().slice(0, 240)
-      : "",
+    summary:
+      typeof result.summary === "string"
+        ? result.summary.trim().slice(0, 240)
+        : message.trim().slice(0, 160),
+    suggestedAction:
+      typeof result.suggestedAction === "string"
+        ? result.suggestedAction.trim().slice(0, 240)
+        : "",
     isSpam: Boolean(result.isSpam),
     aiSource: "ai",
   };
-}
+};
 
-export async function summarizeNotifications(notifications, period, { forceRules = false } = {}) {
+const summarizeNotifications = async (
+  notifications,
+  period,
+  { forceRules = false } = {},
+) => {
   if (!client || forceRules) {
     const highPriority = notifications.filter(
       (item) => item.priority === "critical" || item.priority === "high",
@@ -180,7 +201,9 @@ export async function summarizeNotifications(notifications, period, { forceRules
         detail: item.message.slice(0, 200),
       })),
       nextActions: highPriority.length
-        ? [`Review ${highPriority.length} high-priority notification${highPriority.length === 1 ? "" : "s"}.`]
+        ? [
+            `Review ${highPriority.length} high-priority notification${highPriority.length === 1 ? "" : "s"}.`,
+          ]
         : ["You have no high-priority notifications to review."],
       source: "rules",
     };
@@ -235,9 +258,13 @@ export async function summarizeNotifications(notifications, period, { forceRules
       .map((action) => action.trim().slice(0, 240)),
     source: "ai",
   };
-}
+};
 
-export async function searchNotifications(query, notifications, { forceRules = false } = {}) {
+const searchNotifications = async (
+  query,
+  notifications,
+  { forceRules = false } = {},
+) => {
   const defaultFilters = {
     keywords: query
       .toLowerCase()
@@ -254,7 +281,8 @@ export async function searchNotifications(query, notifications, { forceRules = f
     return {
       filters: defaultFilters,
       source: "keyword",
-      explanation: "Keyword search is active; configure an AI provider for natural-language search.",
+      explanation:
+        "Keyword search is active; configure an AI provider for natural-language search.",
     };
   }
 
@@ -271,9 +299,23 @@ export async function searchNotifications(query, notifications, { forceRules = f
       }),
     },
   ]);
-  const allowedCategories = ["Work", "Personal", "Security", "Promotion", "Other"];
+  const allowedCategories = [
+    "Work",
+    "Personal",
+    "Security",
+    "Promotion",
+    "Other",
+  ];
   const allowedPriorities = ["critical", "high", "medium", "low"];
-  const allowedPlatforms = ["Facebook", "Instagram", "X", "LinkedIn", "YouTube", "Telegram", "Other"];
+  const allowedPlatforms = [
+    "Facebook",
+    "Instagram",
+    "X",
+    "LinkedIn",
+    "YouTube",
+    "Telegram",
+    "Other",
+  ];
   if (
     !Array.isArray(result.keywords) ||
     !Array.isArray(result.categories) ||
@@ -286,14 +328,32 @@ export async function searchNotifications(query, notifications, { forceRules = f
   }
   return {
     filters: {
-      keywords: result.keywords.filter((item) => typeof item === "string").slice(0, 4),
-      categories: result.categories.filter((item) => allowedCategories.includes(item)),
-      priorities: result.priorities.filter((item) => allowedPriorities.includes(item)),
-      platforms: result.platforms.filter((item) => allowedPlatforms.includes(item)),
+      keywords: result.keywords
+        .filter((item) => typeof item === "string")
+        .slice(0, 4),
+      categories: result.categories.filter((item) =>
+        allowedCategories.includes(item),
+      ),
+      priorities: result.priorities.filter((item) =>
+        allowedPriorities.includes(item),
+      ),
+      platforms: result.platforms.filter((item) =>
+        allowedPlatforms.includes(item),
+      ),
       unread_only: result.unread_only,
-      days: result.days === null ? null : Math.max(1, Math.min(744, result.days)),
+      days:
+        result.days === null ? null : Math.max(1, Math.min(744, result.days)),
     },
     source: "ai",
-    explanation: "Natural-language filters were applied to your recent notifications.",
+    explanation:
+      "Natural-language filters were applied to your recent notifications.",
   };
-}
+};
+
+export {
+  getAiStatus,
+  applyUserPreferences,
+  triageNotification,
+  searchNotifications,
+  summarizeNotifications,
+};
