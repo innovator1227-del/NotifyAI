@@ -7,8 +7,8 @@ import {
   CircleHelp,
   Settings,
   Inbox,
-  Sparkles,
   Star,
+  Stars,
 } from "lucide-react";
 import NotificationDetail from "../components/NotificationDetail.jsx";
 import QuickAdd from "../components/QuickAdd.jsx";
@@ -30,7 +30,7 @@ const pages = [
   { key: "priority", label: "Priority inbox", icon: Star },
   { key: "analytics", label: "Analytics", icon: BarChart3 },
   { key: "rules", label: "Rules", icon: Activity },
-  { key: "summaries", label: "AI summaries", icon: Sparkles },
+  { key: "summaries", label: "AI summaries", icon: Stars },
   { key: "integrations", label: "Integrations", icon: Cable },
   { key: "settings", label: "Settings", icon: Settings },
   { key: "help", label: "Help", icon: CircleHelp },

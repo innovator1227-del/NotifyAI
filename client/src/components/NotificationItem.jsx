@@ -58,7 +58,7 @@ const NotificationItem = ({
             {item.senderName}
           </button>
           <span className="text-[10px] text-slate-400">
-            @{item.senderUsername || "notification"}
+            {item.senderUsername || "notification"}
           </span>
           <time className="ml-auto text-[10px] text-slate-400">
             {Number.isNaN(date.getTime()) ? "" : date.toLocaleDateString()}

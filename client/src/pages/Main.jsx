@@ -3,6 +3,7 @@ import {
   Bell,
   CheckCheck,
   CircleAlert,
+  Focus,
   Inbox,
   LoaderCircle,
   RotateCcw,
@@ -298,7 +299,7 @@ const Main = ({
 
         {activePage === "overview" && (
           <div className="mt-5 flex items-center gap-2 rounded-lg border border-indigo-100 bg-indigo-50 px-4 py-3 text-xs leading-5 text-indigo-900/75">
-            <Sparkles className="shrink-0 text-indigo-600" size={16} />
+            <Focus className="shrink-0 text-indigo-600" size={16} />
             <span>
               <strong className="text-indigo-900">Stay focused.</strong>{" "}
               NotifyAI helps you spend less time managing notifications and more

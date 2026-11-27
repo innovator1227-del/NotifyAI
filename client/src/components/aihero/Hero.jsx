@@ -1,4 +1,4 @@
-import { ArrowRight, Bell, Check, Clock3, Sparkles } from "lucide-react";
+import { ArrowRight, Bell, Check, Clock3, Focus, Sparkles } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = () => (
@@ -12,9 +12,9 @@ const Hero = () => (
     <section className="mx-auto grid min-h-[calc(100vh-4.5rem)] max-w-7xl items-center gap-14 px-5 py-16 sm:px-8 lg:grid-cols-[1.05fr_0.95fr] lg:gap-16 lg:px-10 lg:py-20">
       <div className="max-w-2xl">
         <div className="inline-flex items-center gap-2 rounded-full border border-indigo-100 bg-white/80 px-3.5 py-2 text-xs font-bold tracking-wide text-indigo-700 shadow-sm">
-          <Sparkles size={14} />A smarter way to stay in the loop
+          <Focus size={14} />A smarter way to stay in the loop
         </div>
-        <h1 className="mt-7 font-display text-5xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-6xl lg:text-7xl">
+        <h1 className="mt-7 font-display text-3xl font-extrabold leading-[1.08] tracking-tight text-slate-950 sm:text-6xl lg:text-5xl">
           Your notifications,
           <span className="block text-indigo-600">finally in focus.</span>
         </h1>
